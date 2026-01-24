@@ -52,9 +52,15 @@ brew-rs tap update
 
 ## Available Packages
 
-- **curl** - Command-line tool for transferring data with URLs
-- **jq** - Lightweight and flexible command-line JSON processor
+- **curl 8.18.0** - Command-line tool for transferring data with URLs
+- **jq 1.8.1** - Lightweight and flexible command-line JSON processor
 - **simple** - Example package for testing
+
+## Updating Formulas
+
+Formulas are regularly updated to track the latest stable releases. When you run `brew-rs tap update`, you'll receive the newest versions.
+
+See [TAP_WORKFLOW.md](TAP_WORKFLOW.md) for details on how tap updates work and how to contribute formula updates.
 
 ## Contributing
 
