@@ -1,0 +1,332 @@
+name: Build Bottles
+
+on:
+  workflow_dispatch:
+    inputs:
+      formula:
+        description: "Formula name (e.g., zlib, jq, curl)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  parse:
+    name: Parse formula
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.parse.outputs.name }}
+      version: ${{ steps.parse.outputs.version }}
+      source_url: ${{ steps.parse.outputs.source_url }}
+      source_sha256: ${{ steps.parse.outputs.source_sha256 }}
+      build_commands: ${{ steps.parse.outputs.build_commands }}
+      build_env: ${{ steps.parse.outputs.build_env }}
+      runtime_deps: ${{ steps.parse.outputs.runtime_deps }}
+      build_deps: ${{ steps.parse.outputs.build_deps }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse formula TOML
+        id: parse
+        run: |
+          CONFIG=$(python3 scripts/parse-formula.py "formulas/${{ inputs.formula }}.toml")
+
+          echo "name=$(echo "$CONFIG" | jq -r '.name')" >> "$GITHUB_OUTPUT"
+          echo "version=$(echo "$CONFIG" | jq -r '.version')" >> "$GITHUB_OUTPUT"
+          echo "source_url=$(echo "$CONFIG" | jq -r '.source.url')" >> "$GITHUB_OUTPUT"
+          echo "source_sha256=$(echo "$CONFIG" | jq -r '.source.sha256')" >> "$GITHUB_OUTPUT"
+
+          # Multi-line outputs need delimiters
+          {
+            echo "build_commands<<COMMANDS_EOF"
+            echo "$CONFIG" | jq -c '.build.commands'
+            echo "COMMANDS_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "build_env<<ENV_EOF"
+            echo "$CONFIG" | jq -c '.build.env'
+            echo "ENV_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "runtime_deps<<RDEPS_EOF"
+            echo "$CONFIG" | jq -c '.dependencies.runtime'
+            echo "RDEPS_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "build_deps<<BDEPS_EOF"
+            echo "$CONFIG" | jq -c '.dependencies.build'
+            echo "BDEPS_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  build-bottle:
+    name: Build (${{ matrix.platform }})
+    needs: parse
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            platform: macos-arm64
+          - runner: macos-13
+            platform: macos-x86_64
+          - runner: ubuntu-latest
+            platform: linux-x86_64
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set build variables
+        id: vars
+        run: |
+          PREFIX="${{ runner.temp }}/bottle/${{ needs.parse.outputs.name }}/${{ needs.parse.outputs.version }}"
+          mkdir -p "$PREFIX"
+          echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
+
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            echo "ncpu=$(sysctl -n hw.ncpu)" >> "$GITHUB_OUTPUT"
+            echo "cellar=$(brew --cellar)" >> "$GITHUB_OUTPUT"
+          else
+            echo "ncpu=$(nproc)" >> "$GITHUB_OUTPUT"
+            echo "cellar=/usr" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install build dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          BUILD_DEPS='${{ needs.parse.outputs.build_deps }}'
+          RUNTIME_DEPS='${{ needs.parse.outputs.runtime_deps }}'
+
+          # Install build deps via Homebrew
+          for dep in $(echo "$BUILD_DEPS" | jq -r '.[].name'); do
+            echo "Installing build dep: $dep"
+            brew install "$dep" 2>/dev/null || true
+          done
+
+          # Install runtime deps via Homebrew (needed for linking)
+          for dep in $(echo "$RUNTIME_DEPS" | jq -r '.[].name'); do
+            echo "Installing runtime dep: $dep"
+            brew install "$dep" 2>/dev/null || true
+          done
+
+      - name: Install build dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          BUILD_DEPS='${{ needs.parse.outputs.build_deps }}'
+          RUNTIME_DEPS='${{ needs.parse.outputs.runtime_deps }}'
+
+          sudo apt-get update -qq
+
+          # Map formula dep names to apt package names
+          install_apt_dep() {
+            local dep="$1"
+            case "$dep" in
+              openssl)  sudo apt-get install -y libssl-dev ;;
+              zlib)     sudo apt-get install -y zlib1g-dev ;;
+              libssh2)  sudo apt-get install -y libssh2-1-dev ;;
+              pkg-config) sudo apt-get install -y pkg-config ;;
+              autoconf) sudo apt-get install -y autoconf ;;
+              automake) sudo apt-get install -y automake ;;
+              libtool)  sudo apt-get install -y libtool ;;
+              cmake)    sudo apt-get install -y cmake ;;
+              *)        echo "Warning: No apt mapping for '$dep', trying directly"; sudo apt-get install -y "$dep" 2>/dev/null || true ;;
+            esac
+          }
+
+          for dep in $(echo "$BUILD_DEPS" | jq -r '.[].name'); do
+            install_apt_dep "$dep"
+          done
+
+          for dep in $(echo "$RUNTIME_DEPS" | jq -r '.[].name'); do
+            install_apt_dep "$dep"
+          done
+
+      - name: Download and verify source
+        run: |
+          SOURCE_URL="${{ needs.parse.outputs.source_url }}"
+          SOURCE_SHA256="${{ needs.parse.outputs.source_sha256 }}"
+
+          echo "Downloading $SOURCE_URL"
+          curl -fsSL -o source.tar.gz "$SOURCE_URL"
+
+          echo "Verifying SHA-256..."
+          ACTUAL_SHA256=$(shasum -a 256 source.tar.gz | awk '{print $1}')
+          if [ "$ACTUAL_SHA256" != "$SOURCE_SHA256" ]; then
+            echo "SHA-256 mismatch!"
+            echo "  Expected: $SOURCE_SHA256"
+            echo "  Actual:   $ACTUAL_SHA256"
+            exit 1
+          fi
+          echo "SHA-256 verified: $ACTUAL_SHA256"
+
+      - name: Extract source
+        run: |
+          mkdir -p src
+          tar xzf source.tar.gz -C src --strip-components=1
+
+      - name: Build
+        working-directory: src
+        run: |
+          PREFIX="${{ steps.vars.outputs.prefix }}"
+          NCPU="${{ steps.vars.outputs.ncpu }}"
+          CELLAR="${{ steps.vars.outputs.cellar }}"
+          NAME="${{ needs.parse.outputs.name }}"
+          VERSION="${{ needs.parse.outputs.version }}"
+
+          export PREFIX NCPU CELLAR NAME VERSION
+
+          # Set build environment variables from formula
+          BUILD_ENV='${{ needs.parse.outputs.build_env }}'
+          if [ "$BUILD_ENV" != "{}" ] && [ -n "$BUILD_ENV" ]; then
+            while IFS='=' read -r key value; do
+              # Substitute $CELLAR, $PREFIX, $NCPU in env values
+              value=$(echo "$value" | sed "s|\\\$CELLAR|$CELLAR|g; s|\\\$PREFIX|$PREFIX|g; s|\\\$NCPU|$NCPU|g")
+              export "$key=$value"
+              echo "  $key=$value"
+            done < <(echo "$BUILD_ENV" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
+          fi
+
+          # Run build commands with variable substitution
+          BUILD_COMMANDS='${{ needs.parse.outputs.build_commands }}'
+          echo "$BUILD_COMMANDS" | jq -r '.[]' | while IFS= read -r cmd; do
+            # Substitute build variables
+            cmd=$(echo "$cmd" | sed "s|\\\$PREFIX|$PREFIX|g; s|\\\$NCPU|$NCPU|g; s|\\\$CELLAR|$CELLAR|g; s|\\\$VERSION|$VERSION|g; s|\\\$NAME|$NAME|g")
+            echo "Running: $cmd"
+            eval "$cmd"
+          done
+
+      - name: Create bottle tarball
+        id: bottle
+        run: |
+          PREFIX="${{ steps.vars.outputs.prefix }}"
+          NAME="${{ needs.parse.outputs.name }}"
+          VERSION="${{ needs.parse.outputs.version }}"
+          PLATFORM="${{ matrix.platform }}"
+
+          BOTTLE_NAME="${NAME}-${VERSION}.${PLATFORM}.bottle.tar.gz"
+
+          # Create tarball with bin/, lib/, etc. at root (no top-level directory prefix)
+          cd "$PREFIX"
+          tar czf "${{ runner.temp }}/${BOTTLE_NAME}" *
+
+          BOTTLE_SHA256=$(shasum -a 256 "${{ runner.temp }}/${BOTTLE_NAME}" | awk '{print $1}')
+
+          echo "bottle_name=$BOTTLE_NAME" >> "$GITHUB_OUTPUT"
+          echo "bottle_path=${{ runner.temp }}/${BOTTLE_NAME}" >> "$GITHUB_OUTPUT"
+          echo "bottle_sha256=$BOTTLE_SHA256" >> "$GITHUB_OUTPUT"
+
+          echo "Bottle: $BOTTLE_NAME"
+          echo "SHA-256: $BOTTLE_SHA256"
+          echo "Size: $(du -h "${{ runner.temp }}/${BOTTLE_NAME}" | awk '{print $1}')"
+
+      - name: Upload bottle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bottle-${{ matrix.platform }}
+          path: ${{ steps.bottle.outputs.bottle_path }}
+
+      - name: Write SHA-256 to file
+        run: |
+          echo "${{ steps.bottle.outputs.bottle_sha256 }}" > "${{ runner.temp }}/sha256.txt"
+
+      - name: Upload SHA-256 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sha256-${{ matrix.platform }}
+          path: ${{ runner.temp }}/sha256.txt
+
+  release:
+    name: Release bottles
+    needs: [parse, build-bottle]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download all bottle artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create or update GitHub Release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NAME="${{ needs.parse.outputs.name }}"
+          VERSION="${{ needs.parse.outputs.version }}"
+          TAG="${NAME}-${VERSION}"
+
+          # Check if release already exists
+          if gh release view "$TAG" &>/dev/null; then
+            echo "Release $TAG already exists, uploading new assets..."
+            # Delete old bottle assets if they exist
+            for platform in macos-arm64 macos-x86_64 linux-x86_64; do
+              BOTTLE="${NAME}-${VERSION}.${platform}.bottle.tar.gz"
+              gh release delete-asset "$TAG" "$BOTTLE" --yes 2>/dev/null || true
+            done
+          else
+            echo "Creating release $TAG..."
+            gh release create "$TAG" \
+              --title "${NAME} ${VERSION}" \
+              --notes "Pre-built bottles for ${NAME} ${VERSION}."
+          fi
+
+          # Upload bottle tarballs
+          for platform in macos-arm64 macos-x86_64 linux-x86_64; do
+            BOTTLE="${NAME}-${VERSION}.${platform}.bottle.tar.gz"
+            BOTTLE_PATH="artifacts/bottle-${platform}/${BOTTLE}"
+            if [ -f "$BOTTLE_PATH" ]; then
+              echo "Uploading $BOTTLE..."
+              gh release upload "$TAG" "$BOTTLE_PATH" --clobber
+            else
+              echo "Warning: $BOTTLE_PATH not found, skipping"
+            fi
+          done
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Update formula with bottle URLs
+        run: |
+          NAME="${{ needs.parse.outputs.name }}"
+          VERSION="${{ needs.parse.outputs.version }}"
+          TAG="${{ steps.release.outputs.tag }}"
+          REPO="${{ github.repository }}"
+
+          ARGS=()
+          for platform in macos-arm64 macos-x86_64 linux-x86_64; do
+            SHA256_FILE="artifacts/sha256-${platform}/sha256.txt"
+            if [ -f "$SHA256_FILE" ]; then
+              SHA256=$(cat "$SHA256_FILE")
+              URL="https://github.com/${REPO}/releases/download/${TAG}/${NAME}-${VERSION}.${platform}.bottle.tar.gz"
+              ARGS+=(--platform "$platform" --url "$URL" --sha256 "$SHA256")
+            fi
+          done
+
+          python3 scripts/update-bottles.py "formulas/${NAME}.toml" "${ARGS[@]}"
+
+          echo "Updated formula:"
+          cat "formulas/${NAME}.toml"
+
+      - name: Commit and push formula changes
+        run: |
+          NAME="${{ needs.parse.outputs.name }}"
+          VERSION="${{ needs.parse.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add "formulas/${NAME}.toml"
+
+          # Only commit if there are changes
+          if git diff --cached --quiet; then
+            echo "No formula changes to commit."
+          else
+            git commit -m "bottles: update ${NAME} ${VERSION} bottle URLs"
+            git push
+          fi
