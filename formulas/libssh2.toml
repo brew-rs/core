@@ -21,10 +21,7 @@ build = ["cmake", "pkg-config"]
 
 [build]
 commands = [
-    "mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$PREFIX -DBUILD_SHARED_LIBS=ON -DCRYPTO_BACKEND=OpenSSL -DCMAKE_PREFIX_PATH=$PREFIX",
-    "cd build && make -j$NCPU",
-    "cd build && make install"
+    "mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$PREFIX -DBUILD_SHARED_LIBS=ON -DCRYPTO_BACKEND=OpenSSL -DENABLE_ZLIB_COMPRESSION=ON -DCMAKE_PREFIX_PATH=\"$CELLAR/openssl/3.4.4;$CELLAR/zlib/1.3.2\"",
+    "cmake --build build -j $NCPU",
+    "cmake --install build"
 ]
-
-[build.env]
-PKG_CONFIG_PATH = "$PREFIX/lib/pkgconfig"

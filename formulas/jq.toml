@@ -17,8 +17,7 @@ build = ["autoconf", "automake", "libtool"]
 
 [build]
 commands = [
-    "autoreconf -fi",
-    "./configure --prefix=$PREFIX --disable-maintainer-mode",
+    "./configure --prefix=$PREFIX --disable-maintainer-mode --with-oniguruma=builtin",
     "make -j$NCPU",
     "make install"
 ]
