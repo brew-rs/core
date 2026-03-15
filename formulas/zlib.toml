@@ -15,6 +15,18 @@ mirrors = [
     "https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz"
 ]
 
+[bottle.macos-arm64]
+url = "https://github.com/brew-rs/core/releases/download/zlib-1.3.2/zlib-1.3.2.macos-arm64.bottle.tar.gz"
+sha256 = "c9c07ba96140a242dc736f78c761f3e91e17bcbb741137fa0093f3e4eb78fd1b"
+
+[bottle.macos-x86_64]
+url = "https://github.com/brew-rs/core/releases/download/zlib-1.3.2/zlib-1.3.2.macos-x86_64.bottle.tar.gz"
+sha256 = "130d3bacb8710f028712230acfd285adf06c8ed597ba624b5b6a4b8416d2690d"
+
+[bottle.linux-x86_64]
+url = "https://github.com/brew-rs/core/releases/download/zlib-1.3.2/zlib-1.3.2.linux-x86_64.bottle.tar.gz"
+sha256 = "47cf0582cb7c090ed50f5d15d698262dfabb8ec800396c1a6ed9546a6238218d"
+
 [build]
 commands = [
     "./configure --prefix=$PREFIX",
