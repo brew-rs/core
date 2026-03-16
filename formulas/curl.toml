@@ -17,15 +17,15 @@ mirrors = [
 
 [bottle.macos-arm64]
 url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.macos-arm64.bottle.tar.gz"
-sha256 = "95245520534e694dfa9e1c5770c82c4e25740d60d112d0f74e764357144bee35"
+sha256 = "158456976e956fb11b7ab04139a8c9b42cb4d707f5060f1072f349c733c58c2a"
 
 [bottle.macos-x86_64]
 url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.macos-x86_64.bottle.tar.gz"
-sha256 = "1602506bab9047928dc5363df015fa995f7eea24915a50c611f0f4d63c8e646c"
+sha256 = "e805a4a779bab6cef1771f03ab9412800538e8a1c6a1a4a592522a7eba5a1c20"
 
 [bottle.linux-x86_64]
 url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.linux-x86_64.bottle.tar.gz"
-sha256 = "398cbf68290acb86a2ddc86b65e2157db156fe69203b7c281c0ecaf2fde19d46"
+sha256 = "8a6f96c1f5cfb2db7b74287095275d7ee1d9cc989babcdd6c01636ef95cb8c65"
 
 [dependencies]
 runtime = ["openssl ^3.0", "zlib >=1.2.11", "libssh2"]
