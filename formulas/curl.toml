@@ -3,16 +3,16 @@
 
 [package]
 name = "curl"
-version = "8.18.0"
+version = "8.19.0"
 description = "Command-line tool for transferring data with URLs"
 homepage = "https://curl.se"
 license = "MIT"
 
 [source]
-url = "https://curl.se/download/curl-8.18.0.tar.gz"
-sha256 = "e9274a5f8ab5271c0e0e6762d2fce194d5f98acc568e4ce816845b2dcc0cf88f"
+url = "https://github.com/curl/curl/releases/download/curl-8_19_0/curl-8.19.0.tar.gz"
+sha256 = "2a2c11db4c122691aa23b4363befda1bfd801770bfebf41e1d21cee4f2ab0f71"
 mirrors = [
-    "https://github.com/curl/curl/releases/download/curl-8_18_0/curl-8.18.0.tar.gz"
+    "https://github.com/curl/curl/releases/download/curl-8_18_0/curl-8.19.0.tar.gz"
 ]
 
 [dependencies]

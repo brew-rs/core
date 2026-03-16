@@ -3,16 +3,16 @@
 
 [package]
 name = "openssl"
-version = "3.4.4"
+version = "3.6.1"
 description = "Cryptography and SSL/TLS toolkit"
 homepage = "https://openssl-library.org"
 license = "Apache-2.0"
 
 [source]
-url = "https://github.com/openssl/openssl/releases/download/openssl-3.4.4/openssl-3.4.4.tar.gz"
-sha256 = "7bdf55ac20f2779e99e5eca306f824fad2b37dee5a06cc35ed5a8b85a6060010"
+url = "https://github.com/openssl/openssl/releases/download/openssl-3.6.1/openssl-3.6.1.tar.gz"
+sha256 = "b1bfedcd5b289ff22aee87c9d600f515767ebf45f77168cb6d64f231f518a82e"
 mirrors = [
-    "https://www.openssl.org/source/openssl-3.4.4.tar.gz"
+    "https://www.openssl.org/source/openssl-3.6.1.tar.gz"
 ]
 
 [dependencies]
