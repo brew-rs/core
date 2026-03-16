@@ -12,7 +12,7 @@ license = "MIT"
 url = "https://github.com/curl/curl/releases/download/curl-8_19_0/curl-8.19.0.tar.gz"
 sha256 = "2a2c11db4c122691aa23b4363befda1bfd801770bfebf41e1d21cee4f2ab0f71"
 mirrors = [
-    "https://github.com/curl/curl/releases/download/curl-8_18_0/curl-8.19.0.tar.gz"
+    "https://github.com/curl/curl/releases/download/curl-8_19_0/curl-8.19.0.tar.gz"
 ]
 
 [bottle.macos-arm64]
@@ -33,12 +33,7 @@ build = ["pkg-config", "autoconf", "automake"]
 
 [build]
 commands = [
-    "./configure --prefix=$PREFIX --with-openssl=$CELLAR/openssl/3.4.4 --with-libssh2=$CELLAR/libssh2/1.11.1 --with-zlib=$CELLAR/zlib/1.3.2 --without-libpsl --without-brotli --without-zstd --without-nghttp2 --without-libidn2 --disable-ldap --disable-ldaps",
+    "./configure --prefix=$PREFIX --with-openssl --with-libssh2 --with-zlib --without-libpsl --without-brotli --without-zstd --without-nghttp2 --without-libidn2 --disable-ldap --disable-ldaps",
     "make -j$NCPU",
     "make install"
 ]
-
-[build.env]
-PKG_CONFIG_PATH = "$CELLAR/openssl/3.4.4/lib/pkgconfig:$CELLAR/libssh2/1.11.1/lib/pkgconfig:$CELLAR/zlib/1.3.2/lib/pkgconfig"
-LDFLAGS = "-L$CELLAR/openssl/3.4.4/lib -L$CELLAR/zlib/1.3.2/lib -L$CELLAR/libssh2/1.11.1/lib -Wl,-rpath,$CELLAR/openssl/3.4.4/lib -Wl,-rpath,$CELLAR/zlib/1.3.2/lib -Wl,-rpath,$CELLAR/libssh2/1.11.1/lib"
-CPPFLAGS = "-I$CELLAR/openssl/3.4.4/include -I$CELLAR/zlib/1.3.2/include -I$CELLAR/libssh2/1.11.1/include"

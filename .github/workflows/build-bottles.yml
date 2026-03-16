@@ -124,12 +124,15 @@ jobs:
           mkdir -p "$PREFIX"
           echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
 
+          # Create a staging cellar that maps brew-rs dep names to actual paths
+          CELLAR="${{ runner.temp }}/cellar"
+          mkdir -p "$CELLAR"
+          echo "cellar=$CELLAR" >> "$GITHUB_OUTPUT"
+
           if [[ "${{ runner.os }}" == "macOS" ]]; then
             echo "ncpu=$(sysctl -n hw.ncpu)" >> "$GITHUB_OUTPUT"
-            echo "cellar=$(brew --cellar)" >> "$GITHUB_OUTPUT"
           else
             echo "ncpu=$(nproc)" >> "$GITHUB_OUTPUT"
-            echo "cellar=/usr" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Install build dependencies (macOS)
@@ -137,17 +140,38 @@ jobs:
         run: |
           BUILD_DEPS='${{ needs.parse.outputs.build_deps }}'
           RUNTIME_DEPS='${{ needs.parse.outputs.runtime_deps }}'
+          CELLAR="${{ steps.vars.outputs.cellar }}"
+
+          # Map brew-rs dep name to Homebrew package name
+          brew_pkg_name() {
+            case "$1" in
+              openssl) echo "openssl@3" ;;
+              *) echo "$1" ;;
+            esac
+          }
 
           # Install build deps via Homebrew
           for dep in $(echo "$BUILD_DEPS" | jq -r '.[].name'); do
             echo "Installing build dep: $dep"
-            brew install "$dep" 2>/dev/null || true
+            brew install "$(brew_pkg_name "$dep")" 2>/dev/null || true
           done
 
-          # Install runtime deps via Homebrew (needed for linking)
+          # Install runtime deps and create staging cellar symlinks
           for dep in $(echo "$RUNTIME_DEPS" | jq -r '.[].name'); do
-            echo "Installing runtime dep: $dep"
-            brew install "$dep" 2>/dev/null || true
+            pkg=$(brew_pkg_name "$dep")
+            echo "Installing runtime dep: $dep (brew: $pkg)"
+            brew install "$pkg" 2>/dev/null || true
+
+            # Create staging cellar: $CELLAR/<dep-name>/<version> → Homebrew prefix
+            brew_cellar=$(brew --cellar "$pkg" 2>/dev/null || true)
+            if [ -n "$brew_cellar" ] && [ -d "$brew_cellar" ]; then
+              mkdir -p "$CELLAR/$dep"
+              for ver_dir in "$brew_cellar"/*/; do
+                ver=$(basename "$ver_dir")
+                ln -sf "$ver_dir" "$CELLAR/$dep/$ver"
+                echo "  Linked $CELLAR/$dep/$ver → $ver_dir"
+              done
+            fi
           done
 
       - name: Install build dependencies (Linux)
@@ -155,6 +179,7 @@ jobs:
         run: |
           BUILD_DEPS='${{ needs.parse.outputs.build_deps }}'
           RUNTIME_DEPS='${{ needs.parse.outputs.runtime_deps }}'
+          CELLAR="${{ steps.vars.outputs.cellar }}"
 
           sudo apt-get update -qq
 
@@ -178,8 +203,30 @@ jobs:
             install_apt_dep "$dep"
           done
 
+          # Install runtime deps and create staging cellar with symlinks to /usr
           for dep in $(echo "$RUNTIME_DEPS" | jq -r '.[].name'); do
             install_apt_dep "$dep"
+
+            # Get installed version from dpkg
+            case "$dep" in
+              openssl) dpkg_name="libssl-dev" ;;
+              zlib)    dpkg_name="zlib1g-dev" ;;
+              libssh2) dpkg_name="libssh2-1-dev" ;;
+              *)       dpkg_name="$dep" ;;
+            esac
+
+            ver=$(dpkg -s "$dpkg_name" 2>/dev/null | grep '^Version:' | awk '{print $2}' | sed 's/-.*//')
+            if [ -n "$ver" ]; then
+              # Create staging cellar: $CELLAR/<dep>/<ver>/ pointing to /usr
+              mkdir -p "$CELLAR/$dep/$ver"
+              ln -sf /usr/lib "$CELLAR/$dep/$ver/lib"
+              ln -sf /usr/include "$CELLAR/$dep/$ver/include"
+              # Also create lib/pkgconfig symlink if it exists
+              if [ -d /usr/lib/x86_64-linux-gnu/pkgconfig ]; then
+                ln -sf /usr/lib/x86_64-linux-gnu/pkgconfig "$CELLAR/$dep/$ver/lib/pkgconfig" 2>/dev/null || true
+              fi
+              echo "  Linked $CELLAR/$dep/$ver → /usr"
+            fi
           done
 
       - name: Download and verify source

@@ -33,7 +33,7 @@ build = ["perl", "make"]
 
 [build]
 commands = [
-    "./Configure --prefix=$PREFIX --openssldir=$PREFIX/etc/openssl --libdir=lib shared zlib --with-zlib-lib=$CELLAR/zlib/1.3.2/lib --with-zlib-include=$CELLAR/zlib/1.3.2/include",
+    "./Configure --prefix=$PREFIX --openssldir=$PREFIX/etc/openssl --libdir=lib shared zlib",
     "make -j$NCPU",
     "make install"
 ]
