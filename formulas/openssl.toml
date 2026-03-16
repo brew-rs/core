@@ -16,16 +16,16 @@ mirrors = [
 ]
 
 [bottle.macos-arm64]
-url = "https://ghcr.io/v2/homebrew/core/openssl/3/blobs/sha256:d0f784ea2dce63f778a41cc0db641a95f8c46c39e5487bd151cad20760723b13"
-sha256 = "d0f784ea2dce63f778a41cc0db641a95f8c46c39e5487bd151cad20760723b13"
+url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.1/openssl-3.6.1.macos-arm64.bottle.tar.gz"
+sha256 = "09ed1ee8a553986186e3a422d7697dd81bc203d7a97decf2fbd4404ba7ca1b72"
 
 [bottle.macos-x86_64]
-url = "https://ghcr.io/v2/homebrew/core/openssl/3/blobs/sha256:9e28f179957b34d64a95c6de7912f0262fb3b42d2c0fb7607aacfa278c42deb8"
-sha256 = "9e28f179957b34d64a95c6de7912f0262fb3b42d2c0fb7607aacfa278c42deb8"
+url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.1/openssl-3.6.1.macos-x86_64.bottle.tar.gz"
+sha256 = "a9f7195a1947976c05fed917d7d017ca00859e7531a141182296a8ff49ffef67"
 
 [bottle.linux-x86_64]
-url = "https://ghcr.io/v2/homebrew/core/openssl/3/blobs/sha256:89ac158da355fc26605808829909a11e23d604f2d70ac7e272f318a71c1eab5c"
-sha256 = "89ac158da355fc26605808829909a11e23d604f2d70ac7e272f318a71c1eab5c"
+url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.1/openssl-3.6.1.linux-x86_64.bottle.tar.gz"
+sha256 = "f9a7242907b1c2e713ca4fc894d0f737e49578830ae286b5736f18daf4ab5b9f"
 
 [dependencies]
 runtime = ["zlib"]
