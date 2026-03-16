@@ -16,16 +16,16 @@ mirrors = [
 ]
 
 [bottle.macos-arm64]
-url = "https://ghcr.io/v2/homebrew/core/libssh2/blobs/sha256:34927ad08cd265d32f1390a92d84451f85ab5b2f28101ca951da3d3e9df12047"
-sha256 = "34927ad08cd265d32f1390a92d84451f85ab5b2f28101ca951da3d3e9df12047"
+url = "https://github.com/brew-rs/core/releases/download/libssh2-1.11.1/libssh2-1.11.1.macos-arm64.bottle.tar.gz"
+sha256 = "e583cf76a0d41e3da578a666cc81b648ffa3461de890f954458dfa34d553fd80"
 
 [bottle.macos-x86_64]
-url = "https://ghcr.io/v2/homebrew/core/libssh2/blobs/sha256:1f270e8ce9bd56c4d7b894d385e04912c64b53be1402d25dfc8b6d7e01521176"
-sha256 = "1f270e8ce9bd56c4d7b894d385e04912c64b53be1402d25dfc8b6d7e01521176"
+url = "https://github.com/brew-rs/core/releases/download/libssh2-1.11.1/libssh2-1.11.1.macos-x86_64.bottle.tar.gz"
+sha256 = "9b13b3490f4c3ef451088962d69c2a59e9504c662d93e7a3445aa4ec02ef44cc"
 
 [bottle.linux-x86_64]
-url = "https://ghcr.io/v2/homebrew/core/libssh2/blobs/sha256:69d8d069827f2d1b395fd2edf20d5df3dd88e8c45d9db330d293004d70a7413f"
-sha256 = "69d8d069827f2d1b395fd2edf20d5df3dd88e8c45d9db330d293004d70a7413f"
+url = "https://github.com/brew-rs/core/releases/download/libssh2-1.11.1/libssh2-1.11.1.linux-x86_64.bottle.tar.gz"
+sha256 = "4648c20291fbaa7e62b1feee2b08eb3469ba0e6cd9b19e4402059956934324f0"
 
 [dependencies]
 runtime = ["openssl"]
