@@ -33,7 +33,7 @@ build = ["cmake", "pkg-config"]
 
 [build]
 commands = [
-    "mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$PREFIX -DBUILD_SHARED_LIBS=ON -DCRYPTO_BACKEND=OpenSSL -DENABLE_ZLIB_COMPRESSION=ON",
+    "cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$PREFIX -DBUILD_SHARED_LIBS=ON -DCRYPTO_BACKEND=OpenSSL -DENABLE_ZLIB_COMPRESSION=ON",
     "cmake --build build -j $NCPU",
     "cmake --install build"
 ]
