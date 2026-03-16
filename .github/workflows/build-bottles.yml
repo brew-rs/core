@@ -7,13 +7,50 @@ on:
         description: "Formula name (e.g., zlib, jq, curl)"
         required: true
         type: string
+  push:
+    branches: [main]
+    paths:
+      - "formulas/*.toml"
 
 permissions:
   contents: write
 
 jobs:
+  detect:
+    name: Detect changed formulas
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      formulas: ${{ steps.detect.outputs.formulas }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Find changed formulas
+        id: detect
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- 'formulas/*.toml' | sed 's|formulas/||; s|\.toml||' | tr '\n' ' ')
+          echo "formulas=$CHANGED" >> "$GITHUB_OUTPUT"
+          echo "Changed formulas: $CHANGED"
+
+      - name: Trigger builds
+        if: steps.detect.outputs.formulas != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for formula in ${{ steps.detect.outputs.formulas }}; do
+            # Skip simple.toml (test formula)
+            [ "$formula" = "simple" ] && continue
+            echo "Triggering bottle build for $formula..."
+            gh workflow run build-bottles.yml \
+              --repo "${{ github.repository }}" \
+              -f formula="$formula"
+          done
+
   parse:
     name: Parse formula
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       name: ${{ steps.parse.outputs.name }}

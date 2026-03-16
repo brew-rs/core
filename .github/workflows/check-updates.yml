@@ -1,0 +1,67 @@
+name: Check for upstream updates
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    name: Check upstream versions
+    runs-on: ubuntu-latest
+    outputs:
+      updated_formulas: ${{ steps.check.outputs.updated_formulas }}
+      has_updates: ${{ steps.check.outputs.has_updates }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for updates
+        id: check
+        run: |
+          UPDATES=$(python3 scripts/check-updates.py formulas/ --apply)
+          echo "$UPDATES"
+
+          # Extract formula names that were updated
+          NAMES=$(echo "$UPDATES" | jq -r '.[].name' | tr '\n' ' ')
+          if [ -n "$NAMES" ] && [ "$NAMES" != " " ]; then
+            echo "has_updates=true" >> "$GITHUB_OUTPUT"
+            echo "updated_formulas=$NAMES" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_updates=false" >> "$GITHUB_OUTPUT"
+            echo "updated_formulas=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit formula updates
+        if: steps.check.outputs.has_updates == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add formulas/*.toml
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: bump $(echo '${{ steps.check.outputs.updated_formulas }}' | xargs | tr ' ' ', ')"
+            git push
+          fi
+
+  trigger-builds:
+    name: Trigger bottle builds
+    needs: check
+    if: needs.check.outputs.has_updates == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger bottle builds for updated formulas
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for formula in ${{ needs.check.outputs.updated_formulas }}; do
+            echo "Triggering bottle build for $formula..."
+            gh workflow run build-bottles.yml \
+              --repo "${{ github.repository }}" \
+              -f formula="$formula"
+          done
