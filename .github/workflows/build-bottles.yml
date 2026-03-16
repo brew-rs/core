@@ -37,7 +37,7 @@ jobs:
       - name: Trigger builds
         if: steps.detect.outputs.formulas != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           for formula in ${{ steps.detect.outputs.formulas }}; do
             # Skip simple.toml (test formula)

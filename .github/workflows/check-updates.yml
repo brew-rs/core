@@ -57,7 +57,7 @@ jobs:
     steps:
       - name: Trigger bottle builds for updated formulas
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           for formula in ${{ needs.check.outputs.updated_formulas }}; do
             echo "Triggering bottle build for $formula..."
