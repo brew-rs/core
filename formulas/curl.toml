@@ -16,16 +16,16 @@ mirrors = [
 ]
 
 [bottle.macos-arm64]
-url = "https://ghcr.io/v2/homebrew/core/curl/blobs/sha256:e51e0fef9c8c8ff821f9af07c5a055801836ead9bc6de1c88d3c9a01e0cb4117"
-sha256 = "e51e0fef9c8c8ff821f9af07c5a055801836ead9bc6de1c88d3c9a01e0cb4117"
+url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.macos-arm64.bottle.tar.gz"
+sha256 = "95245520534e694dfa9e1c5770c82c4e25740d60d112d0f74e764357144bee35"
 
 [bottle.macos-x86_64]
-url = "https://ghcr.io/v2/homebrew/core/curl/blobs/sha256:e93bbb5c8a803427c63f9842d42e4d6cda82b51c4d3af345574c15f77541250e"
-sha256 = "e93bbb5c8a803427c63f9842d42e4d6cda82b51c4d3af345574c15f77541250e"
+url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.macos-x86_64.bottle.tar.gz"
+sha256 = "1602506bab9047928dc5363df015fa995f7eea24915a50c611f0f4d63c8e646c"
 
 [bottle.linux-x86_64]
-url = "https://ghcr.io/v2/homebrew/core/curl/blobs/sha256:29ef3f57ed1a8cba8c2689cc8a8ca097908c40d17d4c899e16acfa95ab899b93"
-sha256 = "29ef3f57ed1a8cba8c2689cc8a8ca097908c40d17d4c899e16acfa95ab899b93"
+url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.linux-x86_64.bottle.tar.gz"
+sha256 = "398cbf68290acb86a2ddc86b65e2157db156fe69203b7c281c0ecaf2fde19d46"
 
 [dependencies]
 runtime = ["openssl ^3.0", "zlib >=1.2.11", "libssh2"]
