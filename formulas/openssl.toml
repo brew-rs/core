@@ -17,15 +17,15 @@ mirrors = [
 
 [bottle.macos-arm64]
 url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.2/openssl-3.6.2.macos-arm64.bottle.tar.gz"
-sha256 = "09ed1ee8a553986186e3a422d7697dd81bc203d7a97decf2fbd4404ba7ca1b72"
+sha256 = "4031895f967f3a527360651e5e74d7ed36e705cd6fe8ba6cdd99c49319af6916"
 
 [bottle.macos-x86_64]
 url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.2/openssl-3.6.2.macos-x86_64.bottle.tar.gz"
-sha256 = "a9f7195a1947976c05fed917d7d017ca00859e7531a141182296a8ff49ffef67"
+sha256 = "6317999c466a5ef10b96302424c2db1bccf5fd0c794ebac1a22a4e7c42b4bddc"
 
 [bottle.linux-x86_64]
 url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.2/openssl-3.6.2.linux-x86_64.bottle.tar.gz"
-sha256 = "f9a7242907b1c2e713ca4fc894d0f737e49578830ae286b5736f18daf4ab5b9f"
+sha256 = "466b1651f7869700fdc174e471e458c8570a533800d43d0e285d878d19cd379d"
 
 [dependencies]
 runtime = ["zlib"]
