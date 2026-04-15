@@ -3,28 +3,28 @@
 
 [package]
 name = "openssl"
-version = "3.6.2"
+version = "4.0.0"
 description = "Cryptography and SSL/TLS toolkit"
 homepage = "https://openssl-library.org"
 license = "Apache-2.0"
 
 [source]
-url = "https://github.com/openssl/openssl/releases/download/openssl-3.6.2/openssl-3.6.2.tar.gz"
-sha256 = "aaf51a1fe064384f811daeaeb4ec4dce7340ec8bd893027eee676af31e83a04f"
+url = "https://github.com/openssl/openssl/releases/download/openssl-4.0.0/openssl-4.0.0.tar.gz"
+sha256 = "c32cf49a959c4f345f9606982dd36e7d28f7c58b19c2e25d75624d2b3d2f79ac"
 mirrors = [
-    "https://www.openssl.org/source/openssl-3.6.2.tar.gz"
+    "https://www.openssl.org/source/openssl-4.0.0.tar.gz"
 ]
 
 [bottle.macos-arm64]
-url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.2/openssl-3.6.2.macos-arm64.bottle.tar.gz"
+url = "https://github.com/brew-rs/core/releases/download/openssl-4.0.0/openssl-4.0.0.macos-arm64.bottle.tar.gz"
 sha256 = "4031895f967f3a527360651e5e74d7ed36e705cd6fe8ba6cdd99c49319af6916"
 
 [bottle.macos-x86_64]
-url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.2/openssl-3.6.2.macos-x86_64.bottle.tar.gz"
+url = "https://github.com/brew-rs/core/releases/download/openssl-4.0.0/openssl-4.0.0.macos-x86_64.bottle.tar.gz"
 sha256 = "6317999c466a5ef10b96302424c2db1bccf5fd0c794ebac1a22a4e7c42b4bddc"
 
 [bottle.linux-x86_64]
-url = "https://github.com/brew-rs/core/releases/download/openssl-3.6.2/openssl-3.6.2.linux-x86_64.bottle.tar.gz"
+url = "https://github.com/brew-rs/core/releases/download/openssl-4.0.0/openssl-4.0.0.linux-x86_64.bottle.tar.gz"
 sha256 = "466b1651f7869700fdc174e471e458c8570a533800d43d0e285d878d19cd379d"
 
 [dependencies]
