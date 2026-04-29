@@ -3,28 +3,28 @@
 
 [package]
 name = "curl"
-version = "8.19.0"
+version = "8.20.0"
 description = "Command-line tool for transferring data with URLs"
 homepage = "https://curl.se"
 license = "MIT"
 
 [source]
-url = "https://github.com/curl/curl/releases/download/curl-8_19_0/curl-8.19.0.tar.gz"
-sha256 = "2a2c11db4c122691aa23b4363befda1bfd801770bfebf41e1d21cee4f2ab0f71"
+url = "https://github.com/curl/curl/releases/download/curl-8_20_0/curl-8.20.0.tar.gz"
+sha256 = "fc5819cad3f9f5482669adcdc49a782c15f36d2a0715b395b06d9173593d2dc0"
 mirrors = [
-    "https://github.com/curl/curl/releases/download/curl-8_19_0/curl-8.19.0.tar.gz"
+    "https://github.com/curl/curl/releases/download/curl-8_19_0/curl-8.20.0.tar.gz"
 ]
 
 [bottle.macos-arm64]
-url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.macos-arm64.bottle.tar.gz"
+url = "https://github.com/brew-rs/core/releases/download/curl-8.20.0/curl-8.20.0.macos-arm64.bottle.tar.gz"
 sha256 = "158456976e956fb11b7ab04139a8c9b42cb4d707f5060f1072f349c733c58c2a"
 
 [bottle.macos-x86_64]
-url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.macos-x86_64.bottle.tar.gz"
+url = "https://github.com/brew-rs/core/releases/download/curl-8.20.0/curl-8.20.0.macos-x86_64.bottle.tar.gz"
 sha256 = "e805a4a779bab6cef1771f03ab9412800538e8a1c6a1a4a592522a7eba5a1c20"
 
 [bottle.linux-x86_64]
-url = "https://github.com/brew-rs/core/releases/download/curl-8.19.0/curl-8.19.0.linux-x86_64.bottle.tar.gz"
+url = "https://github.com/brew-rs/core/releases/download/curl-8.20.0/curl-8.20.0.linux-x86_64.bottle.tar.gz"
 sha256 = "8a6f96c1f5cfb2db7b74287095275d7ee1d9cc989babcdd6c01636ef95cb8c65"
 
 [dependencies]
