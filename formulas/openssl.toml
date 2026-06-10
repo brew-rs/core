@@ -17,15 +17,15 @@ mirrors = [
 
 [bottle.macos-arm64]
 url = "https://github.com/brew-rs/core/releases/download/openssl-4.0.1/openssl-4.0.1.macos-arm64.bottle.tar.gz"
-sha256 = "77fbd0825a6511b5e44beca25fcb9e8e77eaa25af4895e0a661d4553f1659207"
+sha256 = "9837b6358bf8d1e4d588b20408fd0f46f4b9f07f889b9c58ae6cb4a9c7eb77c8"
 
 [bottle.macos-x86_64]
 url = "https://github.com/brew-rs/core/releases/download/openssl-4.0.1/openssl-4.0.1.macos-x86_64.bottle.tar.gz"
-sha256 = "e511bbb305d4c0a525108c7ac59aa446a24376f8d35a5d6051de237988142807"
+sha256 = "614d0222a540e688b24596f120d7d4b60cf881cdf447f06a2f82e99cd798c9ac"
 
 [bottle.linux-x86_64]
 url = "https://github.com/brew-rs/core/releases/download/openssl-4.0.1/openssl-4.0.1.linux-x86_64.bottle.tar.gz"
-sha256 = "8120fb078a0d4b360138bea2c661d0a6dbee6210c86331fb8b7734b367566df5"
+sha256 = "7cdf2f08957847a75452731d548f21511818b43f90413e5b6dcb29e75fe6ae79"
 
 [dependencies]
 runtime = ["zlib"]
