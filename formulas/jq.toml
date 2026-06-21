@@ -14,15 +14,15 @@ sha256 = "71b8d6e8f5fe81f6c6d0d110e3892251f6ce76ed095abd315e26e6e1193af3af"
 
 [bottle.macos-arm64]
 url = "https://github.com/brew-rs/core/releases/download/jq-1.8.2/jq-1.8.2.macos-arm64.bottle.tar.gz"
-sha256 = "d312b7ce87a1e8addaa5452a954afe1154b3db911676d4ad5a72568be00c6f43"
+sha256 = "db6480c648da7182084800f64a8ead9c2e224a851fe86273a9d1c7d304349210"
 
 [bottle.macos-x86_64]
 url = "https://github.com/brew-rs/core/releases/download/jq-1.8.2/jq-1.8.2.macos-x86_64.bottle.tar.gz"
-sha256 = "c0af9a1cb5dd2364ec73abbec1a1224cd3c2fdd728f9c6befeb0356b7f9a72e9"
+sha256 = "361f271ad632ac722659839d859face905aad012e1c638bf6e8c7eb3f14f8af9"
 
 [bottle.linux-x86_64]
 url = "https://github.com/brew-rs/core/releases/download/jq-1.8.2/jq-1.8.2.linux-x86_64.bottle.tar.gz"
-sha256 = "d8ed65be25f0dc22d48dd9de456e359c1acb618ea52a2160f1dc291ad87bb660"
+sha256 = "8074a66fbd3d271772c330ea97df7f5ccc732ed1bdd148d4a103891010963e90"
 
 [dependencies]
 build = ["autoconf", "automake", "libtool"]
