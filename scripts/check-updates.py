@@ -105,7 +105,7 @@ def download_and_hash(url: str) -> str | None:
         return None
 
 
-def update_formula_file(path: Path, new_version: str, new_url: str, new_sha256: str) -> None:
+def update_formula_file(path: Path, old_version: str, new_version: str, new_url: str, new_sha256: str) -> None:
     """Update a formula TOML file with new version, source URL, and SHA-256."""
     content = path.read_text()
 
@@ -134,10 +134,6 @@ def update_formula_file(path: Path, new_version: str, new_url: str, new_sha256: 
     )
 
     # Update mirrors that contain the old version
-    # Read old version to find/replace in mirror URLs
-    with open(path, "rb") as f:
-        old_data = tomllib.load(f)
-    old_version = old_data["package"]["version"]
     if old_version != new_version:
         content = content.replace(old_version, new_version)
 
@@ -233,6 +229,7 @@ def main() -> None:
                 print(f"  Applying update to {formula_path}...", file=sys.stderr)
                 update_formula_file(
                     formula_path,
+                    result["current_version"],
                     result["new_version"],
                     result["new_url"],
                     result["new_sha256"],
