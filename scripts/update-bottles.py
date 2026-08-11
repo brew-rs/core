@@ -21,6 +21,13 @@ import sys
 from pathlib import Path
 
 
+BOTTLE_SECTION_PATTERN = re.compile(
+    r'\[bottle\.[^\]]+\][ \t]*\n'
+    r'url[ \t]*=[ \t]*"[^"]*"[ \t]*\n'
+    r'sha256[ \t]*=[ \t]*"[^"]*"[ \t]*\n'
+)
+
+
 def update_bottle_section(
     content: str, platform: str, url: str, sha256: str
 ) -> str:
@@ -60,12 +67,7 @@ def update_bottle_section(
 
     # Check if other bottle sections exist — insert after the last one
     last_bottle_end = -1
-    for m in re.finditer(
-        r'\[bottle\.[^\]]+\][ \t]*\n'
-        r'url[ \t]*=[ \t]*"[^"]*"[ \t]*\n'
-        r'sha256[ \t]*=[ \t]*"[^"]*"[ \t]*\n',
-        content,
-    ):
+    for m in BOTTLE_SECTION_PATTERN.finditer(content):
         last_bottle_end = m.end()
 
     if last_bottle_end > 0:
