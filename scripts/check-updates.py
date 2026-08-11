@@ -17,6 +17,7 @@ import re
 import sys
 import tomllib
 import urllib.request
+import concurrent.futures
 import urllib.error
 from pathlib import Path
 
@@ -222,21 +223,23 @@ def main() -> None:
         sys.exit(1)
 
     updates = []
-    for formula_path in formula_files:
-        if formula_path.name == "simple.toml":
-            continue
-        result = check_formula(formula_path)
-        if result:
-            updates.append(result)
+    formulas_to_check = [f for f in formula_files if f.name != "simple.toml"]
 
-            if apply_updates:
-                print(f"  Applying update to {formula_path}...", file=sys.stderr)
-                update_formula_file(
-                    formula_path,
-                    result["new_version"],
-                    result["new_url"],
-                    result["new_sha256"],
-                )
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = executor.map(check_formula, formulas_to_check)
+
+        for formula_path, result in zip(formulas_to_check, results):
+            if result:
+                updates.append(result)
+
+                if apply_updates:
+                    print(f"  Applying update to {formula_path}...", file=sys.stderr)
+                    update_formula_file(
+                        formula_path,
+                        result["new_version"],
+                        result["new_url"],
+                        result["new_sha256"],
+                    )
 
     print(json.dumps(updates, indent=2))
 
